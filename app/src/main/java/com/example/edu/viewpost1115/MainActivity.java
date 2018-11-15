@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         ((Button)findViewById(R.id.buttonRun)).setOnClickListener(this);
+        ((Button)findViewById(R.id.buttonReset)).setOnClickListener(this);
         progressBarPost = findViewById(R.id.progressBar);
         imageViewPost = findViewById(R.id.imageView);
         textViewProgress = findViewById(R.id.textViewProgress);
@@ -44,9 +45,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        while (mProgressBarStatus<100){
+
+                        String strUri = "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png";
+                        try {
+                            URL url = new URL(strUri);
+                            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                            httpURLConnection.connect();
+                            InputStream inputStream = httpURLConnection.getInputStream();
+                            final Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                            imageViewPost.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    imageViewPost.setImageBitmap(bitmap);
+                                }
+                            });
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        while (mProgressBarStatus < 100) {
                             try {
-                                Thread.sleep(100); //실제 프로그래밍에서는 넣지 않는다. 예제라 넣은 것.
+                                Thread.sleep(10); //실제 프로그래밍에서는 넣지 않는다. 예제라 넣은 것.
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -60,58 +81,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             textViewProgress.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    textViewProgress.setText(String.valueOf(mProgressBarStatus)+"%");
+                                    textViewProgress.setText(String.valueOf(mProgressBarStatus) + "%");
                                 }
                             });
                         }
-                        String strUri = "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png";
-                        try {
-                            URL url = new URL(strUri);
-                            HttpsURLConnection httpsURLConnection = (HttpsURLConnection)url.openConnection();
-                            httpsURLConnection.connect();
-                            InputStream inputStream = httpsURLConnection.getInputStream();
-                            final Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                            imageViewPost.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    imageViewPost.setImageBitmap(bitmap);
-                                }
-                            });
-                        } catch (MalformedURLException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
+
+
                         }
-                    }
+
                 }).start();
                 break;
 
-//            case R.id.buttonEnter:
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        String strUri = "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png";
-//                        try {
-//                            URL url = new URL(strUri);
-//                            HttpsURLConnection httpsURLConnection = (HttpsURLConnection)url.openConnection();
-//                            httpsURLConnection.connect();
-//                            InputStream inputStream = httpsURLConnection.getInputStream();
-//                            final Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-//                            imageViewPost.post(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    imageViewPost.setImageBitmap(bitmap);
-//                                }
-//                            });
-//                        } catch (MalformedURLException e) {
-//                            e.printStackTrace();
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }).start();
-//
-//                break;
+            case R.id.buttonReset:
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBarPost.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                mProgressBarStatus = 0;
+                                progressBarPost.setProgress(mProgressBarStatus);
+                                textViewProgress.setText("");
+                                imageViewPost.setImageResource(R.drawable.viewpost);
+                            }
+                        });
+
+                    }
+                }).start();
+
+                break;
 
         }
 
